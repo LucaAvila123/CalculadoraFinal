@@ -45,6 +45,18 @@ processar_entrada:
     
     ; Armazena o caractere na posição atual do array de variáveis
     mov [di], al
+    cmp cx, 0
+    je .primeiro_digito
+    cmp cx, 1
+    je .segundo_digito
+    cmp cx, 2
+    je .operador
+    cmp cx, 3
+    je .terceiro_digito
+    cmp cx, 4
+    je .quarto_digito
+
+.volta_teste:
     inc di
     inc si
     inc cx
@@ -55,9 +67,32 @@ processar_entrada:
     jmp .processar_loop
 
 .fim_processamento:
-    ; Chama sete funções de dígitos por serem o máximo de dígitos que serão usados
+    call parse_number1
+    call parse_number2
+    call operacao
+    call imprime_resultado
 
     ret
+.primeiro_digito:
+    mov al, byte[di]
+    mov byte[digito1_numero1], al
+    jmp .volta_teste
+.segundo_digito:
+    mov al, byte[di]
+    mov byte[digito2_numero1], al
+    jmp .volta_teste
+.operador
+    mov al, byte[di]
+    mov byte[op], al
+    jmp .volta_teste
+.terceiro_digito
+    mov al, byte[di]
+    mov byte[op], al
+    jmp .volta_teste
+.quarto_digito
+    mov al, byte[di]
+    mov byte[op], al
+    jmp .volta_teste
 
 erro:
     ; irá resetar o processo
@@ -151,18 +186,92 @@ sair:
     mov ax, 4C00h
     int 21h
 
+parse_number1:
+    mov al, [digito1_numero1]
+    sub al, 30h
+    mov bh, 10
+    mul bh
+    xor bh, bh
+    mov bl, [digito2_numero1]  
+    sub bl, 30h                
+    add al, bl                 
+    mov byte[num1], al                
+    xor ax, ax
+  
+    ret
+
+parse_number2:
+    mov al, [digito1_numero2]
+    sub al, 30h
+    mov bh, 10
+    mul bh
+    xor bh, bh
+    mov bl, [digito2_numero2]  
+    sub bl, 30h                
+    add al, bl                 
+    mov byte[num2],al                 
+    xor ax, ax  
+    ret 
+operacao:
+    mov al, [op]
+    cmp al, '+'
+    je soma
+    cmp al, '-'
+    je subtracao
+    cmp al, '*'
+    je multiplicacao
+    cmp al, '/'
+    je divisao
+    ret
+
+soma:
+    mov al, [num1]
+    mov bl, [num2]
+    add al, bl
+    mov byte[resultado], al
+    ret
+
+subtracao:
+    mov al, [num1]
+    mov bl, [num2]
+    sub al, bl 
+    mov byte[resultado], al
+    ret  
+
+multiplicacao:
+    mov al, [num1]
+    mov bl, [num2]
+    mul bl
+    mov byte[resultado], al
+    ret
+
+divisao:
+    mov al, [num1]
+    mov bl, [num2]
+    div bl
+    mov byte[resultado], al 
+    ret
+
+imprime_resultado:
+    mov ah, 0Eh       ; Função "Teletype output" (imprime caractere na tela)
+    mov al, byte[resultado]; Caractere a ser impresso (pode ser um registrador, ex.: `mov al, bl`)
+    mov bl, 07h       ; Cor (07h = cinza claro, fundo preto)
+    int 10h           ; Chama a interrupção do BIOS
+    ret
+
 segment data
     entrada times 101 db 0  ; String para armazenar até 100 caracteres + terminador
     variaveis times 100 db 0 ; Array para armazenar caracteres individuais
-    num1 dw 0
-    num2 dw 0
+    num1 db 0
+    num2 db 0
+    resultado db 0
     digito1_numero1 db 0
     digito2_numero1 db 0
     digito1_numero2 db 0
     digito2_numero2 db 0
     op db 0        ; Operador (+, -, *, /)
-    negativo1 db 0 ; Operador primeiro número (-)
-    negativo2 db 0 ; Operador segundo número  (-)
+    sinal1 db 0 ; Operador primeiro número (-)
+    sinal2 db 0 ; Operador segundo número  (-)
 
 segment stack stack
     resb 256

@@ -1,0 +1,77 @@
+    mov ah, 0Eh       ; Função "Teletype output" (imprime caractere na tela)
+    mov al, byte[digito1_numero1]; Caractere a ser impresso (pode ser um registrador, ex.: `mov al, bl`)
+    mov bl, 07h       ; Cor (07h = cinza claro, fundo preto)
+    int 10h           ; Chama a interrupção do BIOS
+    
+parse_number1:
+    mov al, [digito1_numero1]
+    sub al, 30h
+    mov bh, 10
+    mul bh
+    xor bh, bh
+    mov bl, [digito2_numero1]  
+    sub bl, 30h                
+    add al, bl                 
+    mov byte[num1], al                
+    xor ax, ax
+  
+    ret
+
+parse_number2:
+    mov al, [digito1_numero2]
+    sub al, 30h
+    mov bh, 10
+    mul bh
+    xor bh, bh
+    mov bl, [digito2_numero2]  
+    sub bl, 30h                
+    add al, bl                 
+    mov byte[num2],al                 
+    xor ax, ax  
+    ret 
+operacao:
+    mov al, [op]
+    cmp al, '+'
+    je soma
+    cmp al, '-'
+    je subtracao
+    cmp al, '*'
+    je multiplicacao
+    cmp al, '/'
+    je divisao
+    ret
+
+soma:
+    mov al, [num1]
+    mov bl, [num2]
+    add al, bl
+    mov byte[resultado], al
+    ret
+
+subtracao:
+    mov al, [num1]
+    mov bl, [num2]
+    sub al, bl 
+    mov byte[resultado], al
+    ret  
+
+multiplicacao:
+    mov al, [num1]
+    mov bl, [num2]
+    mul bl
+    mov byte[resultado], al
+    ret
+
+divisao:
+    mov al, [num1]
+    mov bl, [num2]
+    div bl
+    mov byte[resultado], al 
+    ret
+
+imprime_resultado:
+    mov ah, 0Eh       ; Função "Teletype output" (imprime caractere na tela)
+    mov al, byte[resultado]; Caractere a ser impresso (pode ser um registrador, ex.: `mov al, bl`)
+    mov bl, 07h       ; Cor (07h = cinza claro, fundo preto)
+    int 10h           ; Chama a interrupção do BIOS
+    ret

@@ -32,6 +32,32 @@ imprimir_string:
     pop si
     ret
 
+processar_entrada:
+    ; Processa a string entrada caractere por caractere
+    mov si, entrada      ; Ponteiro para o início da string
+    mov di, variaveis    ; Ponteiro para o array de variáveis
+    xor cx, cx           ; Contador de caracteres processados
+
+.processar_loop:
+    mov al, [si]        ; Carrega o próximo caractere
+    or al, al           ; Verifica se é o terminador nulo
+    jz .fim_processamento
+    
+    ; Armazena o caractere na posição atual do array de variáveis
+    mov [di], al
+    inc di
+    inc si
+    inc cx
+    
+    ; Aqui você pode adicionar lógica específica para cada tipo de caractere
+    ; Por exemplo, verificar se é dígito, operador, etc.
+    
+    jmp .processar_loop
+
+.fim_processamento:
+    ; CX agora contém o número de caracteres processados
+    ; Você pode usar essa informação se necessário
+    ret
 inserir_digito:
     mov si, 0          ; Inicializa o índice da string
     
@@ -47,7 +73,7 @@ inserir_digito:
     je .backspace
 
     call .armazena
-    jmp .input_loop    ; Ignora outros caracteres
+    jmp .input_loop   
     
 .armazena:
     ; Armazena o caractere na string
@@ -108,7 +134,8 @@ trata_string:
     int 10h
     mov al, 0Ah        ; Line Feed
     int 10h
-    
+    ;Aqui vai funcionar a calculadora
+    call processar_entrada    
     ; Volta para capturar mais entrada
     mov si, 0
     jmp inserir_digito.input_loop
@@ -120,12 +147,13 @@ sair:
 
 segment data
     entrada times 101 db 0  ; String para armazenar até 100 caracteres + terminador
+    variaveis times 100 db 0 ; Array para armazenar caracteres individuais
     num1 dw 0
     num2 dw 0
     digito db 0
     op db 0        ; Operador (+, -, *, /)
     negativo1 db 0 ; Operador primeiro número (-)
-    negativo2 db 0 ; Operador segundo número
+    negativo2 db 0 ; Operador segundo número  (-)
 
 segment stack stack
     resb 256

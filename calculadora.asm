@@ -55,9 +55,15 @@ processar_entrada:
     jmp .processar_loop
 
 .fim_processamento:
-    ; CX agora contém o número de caracteres processados
-    ; Você pode usar essa informação se necessário
+    ; Chama sete funções de dígitos por serem o máximo de dígitos que serão usados
+
     ret
+
+erro:
+    ; irá resetar o processo
+    mov si, 0
+    jmp inserir_digito.input_loop
+
 inserir_digito:
     mov si, 0          ; Inicializa o índice da string
     
@@ -135,7 +141,7 @@ trata_string:
     mov al, 0Ah        ; Line Feed
     int 10h
     ;Aqui vai funcionar a calculadora
-    call processar_entrada    
+    call processar_entrada   
     ; Volta para capturar mais entrada
     mov si, 0
     jmp inserir_digito.input_loop
@@ -150,7 +156,10 @@ segment data
     variaveis times 100 db 0 ; Array para armazenar caracteres individuais
     num1 dw 0
     num2 dw 0
-    digito db 0
+    digito1_numero1 db 0
+    digito2_numero1 db 0
+    digito1_numero2 db 0
+    digito2_numero2 db 0
     op db 0        ; Operador (+, -, *, /)
     negativo1 db 0 ; Operador primeiro número (-)
     negativo2 db 0 ; Operador segundo número  (-)

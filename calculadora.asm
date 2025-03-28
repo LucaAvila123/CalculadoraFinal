@@ -1,5 +1,4 @@
 ; Atividade Final
-; Alunos: Elder, Luca e Pedro
 
 segment code
 ..start:
